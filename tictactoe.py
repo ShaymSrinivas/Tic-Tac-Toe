@@ -1,5 +1,6 @@
 from numpy import *
 
+#TODO: remove, this is a standin until there's sufficient interaction.
 game_state = array( [[-1,0,1],[1,-1,0],[1,0, -1]] )
 
 def check_for_win(board):
@@ -37,6 +38,25 @@ def check_for_win(board):
         return 'o wins'
     else: return 'no winner, keep playing'
 
+def human_turn():
+    # Assume humans are X (and X equals 1)
+    row = raw_input("Your turn! Enter a row.")
+    column = raw_input("Your turn! Enter a column.")
+    
+    if check_position(row, column):
+        game_state[row,column] = 1 # TODO generalize to Xs or Os
+    else:
+        print "That spots already taken! Please pick another spot."
+        human_turn()
+
+def check_position(row, column):
+    if game_state[row,column] == 0: # position is free
+        return True
+    else: # position taken
+        return False
+
+print game_state
+human_turn()
 print game_state
 result = check_for_win(game_state)
 print result

@@ -5,8 +5,29 @@ from numpy import array, count_nonzero, flipud, identity, trace, zeros
 
 class TicTacToe(object):
     def __init__(self):
-        self.game_state = zeros((3,3))
+        '''
+        Set initial game conditions: empty board, whether human chose to go first, if human chose Xs or Os.
+        
+        start game
+        '''
+        self.game_state = zeros((3,3)) # Initialize empty board
         # self.game_state = array( [[0,-1,1],[-1,-1,1],[1,1,-1]] )
+
+        ##NOTE: Not sanitizing user input right now. Will likely do away with the cli when gui implemented.
+        initial_move_choice = raw_input("Do you want to go first? (y/n)")
+        self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
+
+        # X equals 1, O equals -1
+        if self.player_choice == 'x':
+            self.player_marker = 1
+        else:
+            self.player_marker = -1
+        self.computer_marker = -self.player_marker
+
+        if initial_move_choice == 'y':
+            self.human_turn()
+        else:
+            self.computer_turn()
 
     def check_for_win(self):
         '''
@@ -48,12 +69,14 @@ class TicTacToe(object):
         else: return 'no winner'
 
     def human_turn(self):
-        # Assume humans are X (and X equals 1)
+        '''
+        Prompt for human move, place move, check for an end game scenario, call computer_turn if game isn't over.
+        '''
         row = raw_input("your turn! Enter a row.")
         column = raw_input("your turn! Enter a column.")
         # place move
         if self.check_position(row, column):
-            self.game_state[row,column] = 1 # TODO generalize to Xs or Os
+            self.game_state[row,column] = self.player_marker
             print self.game_state
         else:
             print "That spots already taken! Please pick another spot."
@@ -70,13 +93,16 @@ class TicTacToe(object):
             self.computer_turn()
 
     def computer_turn(self):
-        ##TODO: This is actually manual (human) right now, will add AI after game flow is finished
-        # Assume humans are O (and O equals -1).
+        '''
+        Play computer move, place move, check for an end game scenario, call human_turn if game isn't over.
+
+        ##TODO: Computer move is actually manual (human) right now, will add AI after game flow is finished
+        '''
         row = raw_input("computer's turn! Enter a row.")
         column = raw_input("computer's turn! Enter a column.")
         # place move
         if self.check_position(row, column):
-            self.game_state[row,column] = -1 # TODO generalize to Xs or Os
+            self.game_state[row,column] = self.computer_marker
             print self.game_state
         else:
             print "That spots already taken! Please pick another spot."
@@ -93,10 +119,16 @@ class TicTacToe(object):
             self.human_turn()
 
     def check_position(self, row, column):
+        '''
+        Check if the given coordinates on the board are free.
+
+        Return True if free, False if not Free
+        '''
         if self.game_state[row,column] == 0: # position is free
             return True
         else: # position taken
             return False
+
 
 game = TicTacToe()
 print game.game_state

@@ -19,51 +19,50 @@ class TicTacToe(object):
 
         # X equals 1, O equals -1
         if self.player_choice == 'x':
-            self.player_marker = 1
+            self.human_marker = 1
         else:
-            self.player_marker = -1
-        self.computer_marker = -self.player_marker
+            self.human_marker = -1
+        self.computer_marker = -self.human_marker
 
         if initial_move_choice == 'y':
             self.human_turn()
         else:
             self.computer_turn()
 
-    def check_for_win(self):
+    def check_for_win(self, marker):
         '''
-        Assume a valid board configuration, i.e. only 0 or 1 winners
+        Assume a valid board configuration, i.e. only 0 or 1 winners.
+        Only check if the player that just moved won.
         '''
-
+        assert marker == 1 or marker == -1
         I = identity(3) # Define 3x3 identity matrix
         ones = array( [[1,1,1]] ) # Define 1s vector (1x3 matrix)
         column = row = 0 # numpy indices start at 0, not 1
+
         # Check the columns
         while column < 3:
-            column_sum = ones.dot(self.game_state).dot(I[:,column])
-            if column_sum == 3:
-                return 'win'
-            elif column_sum == -3:
+            sum = ones.dot(self.game_state).dot(I[:,column])
+            if sum == marker*3: # column sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
                 return 'win'
             column += 1
+
         # Check the rows
         while row < 3:
-            row_sum = ones.dot(self.game_state.T).dot(I[:,row])
-            if row_sum == 3:
-                return 'win'
-            elif row_sum == -3:
+            sum = ones.dot(self.game_state.T).dot(I[:,row])
+            if sum == marker*3: # row sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
                 return 'win'
             row += 1
+
         # Check the diaganols
-        if trace(self.game_state) == 3:
+        sum = trace(self.game_state)
+        if sum == marker*3: # diaganol sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
             return 'win'
-        elif trace(self.game_state) == -3:
+        sum = trace(flipud(self.game_state))
+        if sum == marker*3: # opposite diaganol sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
             return 'win'
-        elif trace(flipud(self.game_state)) == 3:
-            return 'win'
-        elif trace(flipud(self.game_state)) == -3:
-            return 'win'
-        # Check for tie game
-        elif count_nonzero(self.game_state) == 9:
+
+       # Check for tie game
+        if count_nonzero(self.game_state) == 9:
             return 'tie'
         # Keep playing
         else: return 'no winner'
@@ -76,15 +75,15 @@ class TicTacToe(object):
         column = raw_input("your turn! Enter a column.")
         # place move
         if self.check_position(row, column):
-            self.game_state[row,column] = self.player_marker
+            self.game_state[row,column] = self.human_marker
             print self.game_state
         else:
             print "That spots already taken! Please pick another spot."
             self.human_turn()
         # check for win
-        win_state = self.check_for_win()
+        win_state = self.check_for_win(self.human_marker)
         if win_state == 'win':
-            print 'game over - someone won!'
+            print 'game over - you won!'
         elif win_state == 'tie':
             print "game over - there's a tie"
         elif win_state == 'no winner':
@@ -108,9 +107,9 @@ class TicTacToe(object):
             print "That spots already taken! Please pick another spot."
             self.computer_turn()
         # check for win
-        win_state = self.check_for_win()
+        win_state = self.check_for_win(self.computer_marker)
         if win_state == 'win':
-            print 'game over - someone won!'
+            print 'game over - the computer won!'
         elif win_state == 'tie':
             print "game over - there's a tie"
         elif win_state == 'no winner':
@@ -131,6 +130,4 @@ class TicTacToe(object):
 
 
 game = TicTacToe()
-print game.game_state
-game.human_turn()
 print game.game_state

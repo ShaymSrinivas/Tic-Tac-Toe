@@ -1,4 +1,4 @@
-from numpy import array, count_nonzero, flipud, identity, trace, where, zeros
+from numpy import array, count_nonzero, flipud, identity, nonzero, trace, where, zeros
 from random import SystemRandom
 #TODO: remove, this is a standin until there's sufficient interaction.
 
@@ -169,9 +169,7 @@ class TicTacToe(object):
                     return next_move
 
             else: # computer moved in the center
-                print 'humanaaaa', human_move
                 if self.is_corner(human_move):
-                    print 'aaaaaa'
                     # next move is opposite corner of human move
                     next_move_row = (human_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
                     next_move_column = (human_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
@@ -179,11 +177,9 @@ class TicTacToe(object):
                     return next_move
                 else: # human move is an edge
                     if human_move[0] == 1:
-                        print 'human', human_move
                         choices.append([ 0, (human_move[1] + 2) % 4 ])
                         choices.append([ 2, (human_move[1] + 2) % 4 ])
                     else: # human_move[1] == 1
-                        print 'human', human_move
                         choices.append([ (human_move[0] + 2) % 4, 0 ])
                         choices.append([ (human_move[0] + 2) % 4, 2 ])
                     next_move = SystemRandom().choice(choices) # take one of the two far corners
@@ -205,6 +201,49 @@ class TicTacToe(object):
         # last (9th) move of the game:
         elif count_nonzero(self.game_state) == 8:
             pass
+
+    def random_move(self):
+        '''
+        Return coordinates of a random free space
+        '''
+        choices = transpose(nonzero(self.game_state))
+        next_move = SystemRandom().choice(choices) # take one of the two far corners
+        return next_move
+
+    def winning_opportunity(self):
+        '''
+        Return coordinates that will win the game if it exists, False otherwise.
+        '''
+        # Check the columns
+        choices = []
+        while column < 3:
+            sum = ones.dot(self.game_state).dot(I[:,column])
+            if sum == self.computer_marker*2: # column sum = -2 is a winning opportunity for computer
+                choices.append([ where(self.game_state[:,column]==0)[0][0], column ])
+            column += 1
+
+        # Check the rows
+        while row < 3:
+            sum = ones.dot(self.game_state.T).dot(I[:,row])
+            if sum == self.computer_marker*2: # row sum = -2 is a winning opportunity for computer
+                choices.append([ row, where(self.game_state[row,:]==0)[0][0] ])
+            row += 1
+
+        # Check the diaganols
+        sum = trace(self.game_state)
+        if sum == self.computer_marker*2: # diaganol sum = -2 is a winning opportunity for computer
+            for i in range (3):
+                if self.game_state[i,i] == 0:
+                    choices.append([i,i])
+        sum = trace(flipud(self.game_state))
+        if sum == self.computer_marker*2: # opposite diaganol sum = -2 is a winning opportunity for computer.
+            if self.game_state[0,2] == 0:
+                choices.append([0,2])
+            else: # [1,1] was caught in the first diaganol check, only one other option
+                choices.append([2,0])
+
+        next_move = SystemRandom().choice(choices) # take one of the two far corners
+        return next_move
 
     def adjacent_coordinates(self, cell):
         '''

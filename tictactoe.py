@@ -1,4 +1,4 @@
-from numpy import array, count_nonzero, flipud, identity, nonzero, trace, where, zeros
+from numpy import array, count_nonzero, flipud, identity, nonzero, trace, transpose, where, zeros
 from random import SystemRandom
 #TODO: remove, this is a standin until there's sufficient interaction.
 
@@ -44,18 +44,16 @@ class TicTacToe(object):
         column = row = 0 # numpy indices start at 0, not 1
 
         # Check the columns
-        while column < 3:
+        for column in range(3):
             sum = ones.dot(self.game_state).dot(I[:,column])
             if sum == marker*3: # column sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
                 return 'win'
-            column += 1
 
         # Check the rows
-        while row < 3:
+        for row in range(3):
             sum = ones.dot(self.game_state.T).dot(I[:,row])
             if sum == marker*3: # row sum = 3 or -3 is a winning condition for marker 1 or -1 respectively
                 return 'win'
-            row += 1
 
         # Check the diaganols
         sum = trace(self.game_state)
@@ -128,85 +126,113 @@ class TicTacToe(object):
         ##NOTE: Listing odd moves first (computer starts the game) to aid in reading the algorithm.
         ##This way you can read sequential code for sequential computer moves.
 
-        choices = []
-
         ### Computer first sequence ###
         # 1st move of the game:
         if count_nonzero(self.game_state) == 0:
-            choices = [[0,0], [1,1], [0,2], [2,0], [2,2]] # coordinates of first move choices, no edges
-            next_move = SystemRandom().choice(choices)
-            return next_move
+            return self.first_move()
 
         # 3rd move of the game:
         elif count_nonzero(self.game_state) == 2:
-            computer_move = where(self.game_state == self.computer_marker)
-            computer_move = [computer_move[0][0], computer_move[1][0]]
-            human_move = where(self.game_state == self.human_marker)
-            human_move = [human_move[0][0], human_move[1][0]]
+            return self.third_move()
+        
+        # 5th move of the game:
+        elif count_nonzero(self.game_state) > 2:
+            return self.fifth_move()
 
-            if human_move == [1,1]: # human moved in the center (computer must have moved in a corner)
-                # next computer move is the opposite corner of first computer move
-                next_move_row = (computer_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
-                next_move_column = (computer_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
-                next_move = [next_move_row, next_move_column]
+        # # 7th move of the game:
+        # elif count_nonzero(self.game_state) == 6:
+        #     return self.seventh_move()
+
+        # # last (9th) move of the game:
+        # elif count_nonzero(self.game_state) == 8:
+        #     return self.third_move()
+
+        # 2th move of the game:
+        elif count_nonzero(self.game_state) == 1:
+            return self.fifth_move()
+
+        # # 2rd move of the game:
+        # elif count_nonzero(self.game_state) == 2:
+        #     return self.third_move()
+        
+        # # 4th move of the game:
+        # elif count_nonzero(self.game_state) == 4:
+        #     return self.third_move()
+
+        # # 6th move of the game:
+        # elif count_nonzero(self.game_state) == 6:
+        #     return self.third_move()
+
+        # # 8th (last computer) move of the game:
+        # elif count_nonzero(self.game_state) == 8:
+        #     return self.third_move()
+
+    ## Listed in alternating order to better match actual gameplay (computer will either move on odd turns, or even turns)
+    def first_move(self):
+        choices = [[0,0], [1,1], [0,2], [2,0], [2,2]] # coordinates of first move choices, no edges
+        next_move = SystemRandom().choice(choices)
+        return next_move
+
+    def third_move(self):
+        choices = []
+        computer_move = where(self.game_state == self.computer_marker)
+        computer_move = [computer_move[0][0], computer_move[1][0]]
+        human_move = where(self.game_state == self.human_marker)
+        human_move = [human_move[0][0], human_move[1][0]]
+
+        if human_move == [1,1]: # human moved in the center (computer must have moved in a corner)
+            # next computer move is the opposite corner of first computer move
+            next_move_row = (computer_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
+            next_move_column = (computer_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
+            next_move = [next_move_row, next_move_column]
+            return next_move
+
+        if computer_move != [1,1]: # computer moved on a corner
+            if self.is_edge(human_move): # human moved on an edge
+                if human_move in self.adjacent_coordinates(computer_move): # if the human played right next to the computer
+                    next_move = [1,1] # take the center
+                    return next_move
+                else: # human is on edge away from computer
+                    choices.append([ (computer_move[0] + 2) % 4, computer_move[1] ])
+                    choices.append([ computer_move[0], (computer_move[1] + 2) % 4 ])
+                    next_move = SystemRandom().choice(choices) # take one of the corners adjacent to the human
+                    return next_move
+            else: # human moved on one of the other 3 corners
+                for corner in [[0,0], [0,2], [2,0], [2,2]]:
+                    if self.is_available(corner):
+                        choices.append(corner)
+                next_move = SystemRandom().choice(choices) # take any available corner
                 return next_move
 
-            if computer_move != [1,1]: # computer moved on a corner
-                if self.is_edge(human_move): # human moved on an edge
-                    if human_move in self.adjacent_coordinates(computer_move): # if the human played right next to the computer
-                        next_move = [1,1] # take the center
-                        return next_move
-                    else: # human is on edge away from computer
-                        choices.append([ (computer_move[0] + 2) % 4, computer_move[1] ])
-                        choices.append([ computer_move[0], (computer_move[1] + 2) % 4 ])
-                        next_move = SystemRandom().choice(choices) # take one of the corners adjacent to the human
-                        return next_move
-                else: # human moved on one of the other 3 corners
-                    for corner in [[0,0], [0,2], [2,0], [2,2]]:
-                        if self.is_available(corner):
-                            choices.append(corner)
-                    next_move = SystemRandom().choice(choices) # take any available corner
-                    return next_move
+        else: # computer moved in the center
+            if self.is_corner(human_move):
+                # next move is opposite corner of human move
+                next_move_row = (human_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
+                next_move_column = (human_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
+                next_move = [next_move_row, next_move_column]
+                return next_move
+            else: # human move is an edge
+                if human_move[0] == 1:
+                    choices.append([ 0, (human_move[1] + 2) % 4 ])
+                    choices.append([ 2, (human_move[1] + 2) % 4 ])
+                else: # human_move[1] == 1
+                    choices.append([ (human_move[0] + 2) % 4, 0 ])
+                    choices.append([ (human_move[0] + 2) % 4, 2 ])
+                next_move = SystemRandom().choice(choices) # take one of the two far corners
+                return next_move
 
-            else: # computer moved in the center
-                if self.is_corner(human_move):
-                    # next move is opposite corner of human move
-                    next_move_row = (human_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
-                    next_move_column = (human_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
-                    next_move = [next_move_row, next_move_column]
-                    return next_move
-                else: # human move is an edge
-                    if human_move[0] == 1:
-                        choices.append([ 0, (human_move[1] + 2) % 4 ])
-                        choices.append([ 2, (human_move[1] + 2) % 4 ])
-                    else: # human_move[1] == 1
-                        choices.append([ (human_move[0] + 2) % 4, 0 ])
-                        choices.append([ (human_move[0] + 2) % 4, 2 ])
-                    next_move = SystemRandom().choice(choices) # take one of the two far corners
-                    return next_move
-
-                        
-                        
-
-                    
-
-        # 5th move of the game:
-        elif count_nonzero(self.game_state) == 4:
-            pass
-
-        # 7th move of the game:
-        elif count_nonzero(self.game_state) == 6:
-            pass
-
-        # last (9th) move of the game:
-        elif count_nonzero(self.game_state) == 8:
-            pass
+    def fifth_move(self):
+        choices = []
+        if self.winning_opportunity():
+            return self.winning_opportunity()
+        else:
+            return self.random_move()
 
     def random_move(self):
         '''
         Return coordinates of a random free space
         '''
-        choices = transpose(nonzero(self.game_state))
+        choices = transpose(where(self.game_state==0))
         next_move = SystemRandom().choice(choices) # take one of the two far corners
         return next_move
 
@@ -216,18 +242,18 @@ class TicTacToe(object):
         '''
         # Check the columns
         choices = []
-        while column < 3:
+        I = identity(3) # Define 3x3 identity matrix
+        ones = array( [[1,1,1]] ) # Define 1s vector (1x3 matrix)
+        for column in range(3):
             sum = ones.dot(self.game_state).dot(I[:,column])
             if sum == self.computer_marker*2: # column sum = -2 is a winning opportunity for computer
                 choices.append([ where(self.game_state[:,column]==0)[0][0], column ])
-            column += 1
 
         # Check the rows
-        while row < 3:
+        for row in range(3):
             sum = ones.dot(self.game_state.T).dot(I[:,row])
             if sum == self.computer_marker*2: # row sum = -2 is a winning opportunity for computer
                 choices.append([ row, where(self.game_state[row,:]==0)[0][0] ])
-            row += 1
 
         # Check the diaganols
         sum = trace(self.game_state)
@@ -241,9 +267,12 @@ class TicTacToe(object):
                 choices.append([0,2])
             else: # [1,1] was caught in the first diaganol check, only one other option
                 choices.append([2,0])
-
-        next_move = SystemRandom().choice(choices) # take one of the two far corners
-        return next_move
+        print 'choices1111', choices
+        if choices:
+            next_move = SystemRandom().choice(choices) # take one of the two far corners
+            return next_move
+        else:
+            return False
 
     def adjacent_coordinates(self, cell):
         '''

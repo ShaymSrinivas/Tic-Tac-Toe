@@ -1,5 +1,5 @@
-from numpy import array, count_nonzero, flipud, identity, trace, zeros
-
+from numpy import array, count_nonzero, flipud, identity, trace, where, zeros
+from random import SystemRandom
 #TODO: remove, this is a standin until there's sufficient interaction.
 
 
@@ -15,6 +15,10 @@ class TicTacToe(object):
 
         ##NOTE: Not sanitizing user input right now. Will likely do away with the cli when gui implemented.
         initial_move_choice = raw_input("Do you want to go first? (y/n)")
+        if initial_move_choice == 'y':
+            self.first_player = 'human'
+        else:
+            self.first_player = 'computer'
         self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
 
         # X equals 1, O equals -1
@@ -71,11 +75,12 @@ class TicTacToe(object):
         '''
         Prompt for human move, place move, check for an end game scenario, call computer_turn if game isn't over.
         '''
-        row = raw_input("your turn! Enter a row.")
-        column = raw_input("your turn! Enter a column.")
+        move = []
+        move.extend( raw_input("your turn! Enter a row.") )
+        move.extend( raw_input("your turn! Enter a column.") )
         # place move
-        if self.check_position(row, column):
-            self.game_state[row,column] = self.human_marker
+        if self.is_available(move):
+            self.game_state[move[0],move[1]] = self.human_marker
             print self.game_state
         else:
             print "That spots already taken! Please pick another spot."
@@ -97,11 +102,10 @@ class TicTacToe(object):
 
         ##TODO: Computer move is actually manual (human) right now, will add AI after game flow is finished
         '''
-        row = raw_input("computer's turn! Enter a row.")
-        column = raw_input("computer's turn! Enter a column.")
-        # place move
-        if self.check_position(row, column):
-            self.game_state[row,column] = self.computer_marker
+        move = self.computer_ai()
+        print 'move', move
+        if self.is_available(move): #TODO: change to assert later (ai will always pass an available position)
+            self.game_state[move[0],move[1]] = self.computer_marker
             print self.game_state
         else:
             print "That spots already taken! Please pick another spot."
@@ -117,17 +121,142 @@ class TicTacToe(object):
             # computer's turn
             self.human_turn()
 
-    def check_position(self, row, column):
+    def computer_ai(self):
+        '''
+        Calculate which move to play next.
+        '''
+        ##NOTE: Listing odd moves first (computer starts the game) to aid in reading the algorithm.
+        ##This way you can read sequential code for sequential computer moves.
+
+        choices = []
+
+        ### Computer first sequence ###
+        # 1st move of the game:
+        if count_nonzero(self.game_state) == 0:
+            choices = [[0,0], [1,1], [0,2], [2,0], [2,2]] # coordinates of first move choices, no edges
+            next_move = SystemRandom().choice(choices)
+            return next_move
+
+        # 3rd move of the game:
+        elif count_nonzero(self.game_state) == 2:
+            computer_move = where(self.game_state == self.computer_marker)
+            computer_move = [computer_move[0][0], computer_move[1][0]]
+            human_move = where(self.game_state == self.human_marker)
+            human_move = [human_move[0][0], human_move[1][0]]
+
+            if human_move == [1,1]: # human moved in the center (computer must have moved in a corner)
+                # next computer move is the opposite corner of first computer move
+                next_move_row = (computer_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
+                next_move_column = (computer_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
+                next_move = [next_move_row, next_move_column]
+                return next_move
+
+            if computer_move != [1,1]: # computer moved on a corner
+                if self.is_edge(human_move): # human moved on an edge
+                    if human_move in self.adjacent_coordinates(computer_move): # if the human played right next to the computer
+                        next_move = [1,1] # take the center
+                        return next_move
+                    else: # human is on edge away from computer
+                        choices.append([ (computer_move[0] + 2) % 4, computer_move[1] ])
+                        choices.append([ computer_move[0], (computer_move[1] + 2) % 4 ])
+                        next_move = SystemRandom().choice(choices) # take one of the corners adjacent to the human
+                        return next_move
+                else: # human moved on one of the other 3 corners
+                    for corner in [[0,0], [0,2], [2,0], [2,2]]:
+                        if self.is_available(corner):
+                            choices.append(corner)
+                    next_move = SystemRandom().choice(choices) # take any available corner
+                    return next_move
+
+            else: # computer moved in the center
+                print 'humanaaaa', human_move
+                if self.is_corner(human_move):
+                    print 'aaaaaa'
+                    # next move is opposite corner of human move
+                    next_move_row = (human_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
+                    next_move_column = (human_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
+                    next_move = [next_move_row, next_move_column]
+                    return next_move
+                else: # human move is an edge
+                    if human_move[0] == 1:
+                        print 'human', human_move
+                        choices.append([ 0, (human_move[1] + 2) % 4 ])
+                        choices.append([ 2, (human_move[1] + 2) % 4 ])
+                    else: # human_move[1] == 1
+                        print 'human', human_move
+                        choices.append([ (human_move[0] + 2) % 4, 0 ])
+                        choices.append([ (human_move[0] + 2) % 4, 2 ])
+                    next_move = SystemRandom().choice(choices) # take one of the two far corners
+                    return next_move
+
+                        
+                        
+
+                    
+
+        # 5th move of the game:
+        elif count_nonzero(self.game_state) == 4:
+            pass
+
+        # 7th move of the game:
+        elif count_nonzero(self.game_state) == 6:
+            pass
+
+        # last (9th) move of the game:
+        elif count_nonzero(self.game_state) == 8:
+            pass
+
+    def adjacent_coordinates(self, cell):
+        '''
+        Return a list of coordinates for adjacent cells of the form [ [x0,y0], [x1,y1], ... ].
+        Currently only returns corner works if input is a corner space.
+        '''
+        adjacent_cells = []
+
+        if self.is_corner(cell):
+            adjacent_cells.append([cell[0], 1 ])
+            adjacent_cells.append([1, cell[1] ])
+            adjacent_cells.append([1, 1 ])
+            
+        elif self.is_edge(cell): ##NOTE: not used right now, haven't checked for accuracy #TODO: check (fix), or remove if not needed
+            print "in adjancent_cell - is edge. not handled!"
+            adjacent_cells.append([ cell[0], 1 ])
+            adjacent_cells.append([ 1, cell[1] ])
+            adjacent_cells.append([ 1, 1 ])
+
+        return adjacent_cells
+
+    def is_corner(self, cell):
+        '''
+        Return whether the input coordinates are a corner space
+        '''
+        if cell == ([0,0] or [0,2] or [2,0] or [2,2]):
+            return True
+        else:
+            return False
+
+    def is_edge(self, cell):
+        '''
+        Return whether the input coordinates are an edge space
+        '''
+        if cell == ([0,1] or [1,0] or [1,2] or [2,1]):
+            return True
+        else:
+            return False
+
+    def is_available(self, cell):
         '''
         Check if the given coordinates on the board are free.
 
         Return True if free, False if not Free
         '''
-        if self.game_state[row,column] == 0: # position is free
+        print 'cell', cell
+        print 'game_state', self.game_state
+        print 'self.game_state[cell[0],cell[1]]', self.game_state[cell[0],cell[1]]
+        if self.game_state[cell[0],cell[1]] == 0: # position is free
             return True
         else: # position taken
             return False
-
 
 game = TicTacToe()
 print game.game_state

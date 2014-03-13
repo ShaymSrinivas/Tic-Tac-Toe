@@ -1,3 +1,7 @@
+# Author: Joseph Nix
+# nixjdm@terminallabs.com
+# 512-348-8043
+
 from numpy import array, count_nonzero, flipud, identity, nonzero, trace, transpose, where, zeros
 from random import SystemRandom
 #TODO: remove, this is a standin until there's sufficient interaction.

@@ -14,27 +14,31 @@ class TicTacToe(object):
         
         start game
         '''
+        self.winner = None
         self.game_state = zeros((3,3)) # Initialize empty board
         # self.game_state = array( [[0,-1,1],[-1,-1,1],[1,1,-1]] )
 
         ##NOTE: Not sanitizing user input right now. Will likely do away with the cli when gui implemented.
-        initial_move_choice = raw_input("Do you want to go first? (y/n)")
-        if initial_move_choice == 'y':
-            self.first_player = 'human'
-        else:
-            self.first_player = 'computer'
-        self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
-
+        # self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
+        self.player_choice = SystemRandom().choice(['x','o'])
         # X equals 1, O equals -1
         if self.player_choice == 'x':
             self.human_marker = 1
+            print 'human is X'
         else:
             self.human_marker = -1
+            print 'human is O'
         self.computer_marker = -self.human_marker
 
+        # initial_move_choice = raw_input("Do you want to go first? (y/n)")
+        initial_move_choice = SystemRandom().choice(['n'])
         if initial_move_choice == 'y':
+            self.first_player = 'human'
+            print 'human goes first'
             self.human_turn()
         else:
+            self.first_player = 'computer'
+            print 'computer goes first'
             self.computer_turn()
 
     def check_for_win(self, marker):
@@ -71,16 +75,18 @@ class TicTacToe(object):
         if count_nonzero(self.game_state) == 9:
             return 'tie'
         # Keep playing
-        else: return 'no winner'
+        else:
+            return 'no winner'
 
     def human_turn(self):
         '''
         Prompt for human move, place move, check for an end game scenario, call computer_turn if game isn't over.
         '''
-        move = []
-        move.extend( raw_input("your turn! Enter a row.") )
-        move.extend( raw_input("your turn! Enter a column.") )
-        # place move
+        # move = []
+        # move.extend( raw_input("your turn! Enter a row.") )
+        # move.extend( raw_input("your turn! Enter a column.") )
+        move = self.random_move()
+        # Place move
         if self.is_available(move):
             self.game_state[move[0],move[1]] = self.human_marker
             print self.game_state
@@ -90,8 +96,10 @@ class TicTacToe(object):
         # check for win
         win_state = self.check_for_win(self.human_marker)
         if win_state == 'win':
+            self.winner = 'human'
             print 'game over - you won!'
         elif win_state == 'tie':
+            self.winner = 'tie'
             print "game over - there's a tie"
         elif win_state == 'no winner':
             print 'should now keep playing'
@@ -115,8 +123,10 @@ class TicTacToe(object):
         # check for win
         win_state = self.check_for_win(self.computer_marker)
         if win_state == 'win':
+            self.winner = 'computer'
             print 'game over - the computer won!'
         elif win_state == 'tie':
+            self.winner = 'tie'
             print "game over - there's a tie"
         elif win_state == 'no winner':
             print 'should now keep playing'
@@ -267,13 +277,13 @@ class TicTacToe(object):
                     choices.append([i,i])
         sum = trace(flipud(self.game_state))
         if sum == self.computer_marker*2: # opposite diaganol sum = -2 is a winning opportunity for computer.
-            if self.game_state[0,2] == 0:
-                choices.append([0,2])
-            else: # [1,1] was caught in the first diaganol check, only one other option
-                choices.append([2,0])
-        print 'choices1111', choices
+            for i in [[0,2], [1,1], [2,0]]:
+                if self.game_state[i[0], i[1]] == 0:
+                    choices.append(i)
+
+        # if there are any winning opportunities, choose one randomly
         if choices:
-            next_move = SystemRandom().choice(choices) # take one of the two far corners
+            next_move = SystemRandom().choice(choices)
             return next_move
         else:
             return False
@@ -322,13 +332,16 @@ class TicTacToe(object):
 
         Return True if free, False if not Free
         '''
-        print 'cell', cell
-        print 'game_state', self.game_state
-        print 'self.game_state[cell[0],cell[1]]', self.game_state[cell[0],cell[1]]
         if self.game_state[cell[0],cell[1]] == 0: # position is free
             return True
         else: # position taken
             return False
 
-game = TicTacToe()
-print game.game_state
+winner = None
+i=0
+while winner != 'human':
+    game = TicTacToe()
+    print game.game_state
+    winner = game.winner
+    print 'winner'+str(i)+'  = ', winner
+    i += 1

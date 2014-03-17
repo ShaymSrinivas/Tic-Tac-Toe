@@ -6,5 +6,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'tictactoe.views.index', name='home'),
+    url(r'^s', 'tictactoe.views.move', name='home'),
     url(r'^admin/', include(admin.site.urls)),
 )

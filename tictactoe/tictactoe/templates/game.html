@@ -1,2 +1,49 @@
 {% load staticfiles %}
-<img src="{% static "images/x.png" %}" alt = "x image"/>
+<div id='message' style='font-size: 30px; margin: 30px;'>
+  Time to play!
+</div>
+
+<div id='board' style='position: relative;'>
+  <img src="{% static "images/board.png" %}" alt = "board image"/>  
+  <a href='{{ url_list.0 }}'>
+    <div id='c0' style='position: absolute; top: 0px; left: 0px; width: 150px; height:150px;'>
+      {% if moves.c0 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c0 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <div id='top-center' style='position: absolute; top: 0px; left: 150px;'>
+    {{ top_center }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='top-right' style='position: absolute; top: 0px; left: 300px;'>
+    {{ top_right }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='center-left' style='position: absolute; top: 150px; left: 0px;'>
+    {{ center_left }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='center-center' style='position: absolute; top: 150px; left: 150px;'>
+    {{ center_center }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='center-right' style='position: absolute; top: 150px; left: 300px;'>
+    {{ center_right }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='bottom-left' style='position: absolute; top: 300px; left: 0px;'>
+    {{ bottom_left }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='bottom-center' style='position: absolute; top: 300px; left: 150px;'>
+    {{ bottom_center }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+  <div id='bottom-right' style='position: absolute; top: 300px; left: 300px;'>
+    {{ bottom_right }}
+    <img src="{% static "images/x.png" %}" alt = "x image"/>  
+  </div>
+</div>

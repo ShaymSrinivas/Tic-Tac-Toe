@@ -1,6 +1,10 @@
 # Author: Joseph Nix, nixjdm@terminallabs.com 512-348-8043
 # This Django project is compatible with Ubuntu 12.04 LTS
 
+# This is an unbeatable tic-tac-toe game that runs on a locally hosted web app. It's gui is very simple, and will run on modern browsers.
+# The logic for the game is entirely in the tictactoe.py module, and is based of numpy. It allows for every
+# possible move by the human and computer, so long as the human does not win.
+
 # FIRST: to install all dependencies and get up and running, execute
 
 sh virtualenv_install

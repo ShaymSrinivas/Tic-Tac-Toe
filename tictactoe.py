@@ -15,6 +15,9 @@ class TicTacToe(object):
         start game
         '''
         self.winner = None
+        self.center = [1,1]
+        self.corners = [[0,0], [0,2], [2,0], [2,2]]
+        self.edges = [[0,1], [1,0], [1,2], [2,1]]
         self.game_state = zeros((3,3)) # Initialize empty board
         # self.game_state = array( [[0,-1,1],[-1,-1,1],[1,1,-1]] )
 
@@ -32,7 +35,7 @@ class TicTacToe(object):
 
         # initial_move_choice = raw_input("Do you want to go first? (y/n)")
         initial_move_choice = SystemRandom().choice(['n'])
-        if initial_move_choice == 'y':
+        if initial_move_choice == 'n':
             self.first_player = 'human'
             print 'human goes first'
             self.human_turn()
@@ -153,33 +156,22 @@ class TicTacToe(object):
         elif count_nonzero(self.game_state) == 4:
             return self.fifth_move()
 
-        # late moves (finishing the game):
-        elif count_nonzero(self.game_state) > 2 and count_nonzero(self.game_state) != 4:
-            return self.late_move()
-
         # 2th move of the game:
         elif count_nonzero(self.game_state) == 1:
-            return self.fifth_move()
+            return self.second_move()
 
-        # # 2rd move of the game:
-        # elif count_nonzero(self.game_state) == 2:
-        #     return self.third_move()
-        
-        # # 4th move of the game:
-        # elif count_nonzero(self.game_state) == 4:
-        #     return self.third_move()
+        # 4th move of the game:
+        elif count_nonzero(self.game_state) == 3:
+            return self.fourth_move()
 
-        # # 6th move of the game:
-        # elif count_nonzero(self.game_state) == 6:
-        #     return self.third_move()
-
-        # # 8th (last computer) move of the game:
-        # elif count_nonzero(self.game_state) == 8:
-        #     return self.third_move()
+        # late moves (finishing the game):
+        else:
+            print 'play late move'
+            return self.late_move()
 
     ## Listed in alternating order to better match actual gameplay (computer will either move on odd turns, or even turns)
     def first_move(self):
-        choices = [[0,0], [1,1], [0,2], [2,0], [2,2]] # coordinates of first move choices, no edges
+        choices = self.corners + [self.center] # coordinates of first move choices, no edges
         next_move = SystemRandom().choice(choices)
         return next_move
 
@@ -198,7 +190,7 @@ class TicTacToe(object):
             return next_move
 
         if computer_move != [1,1]: # computer moved on a corner
-            if self.is_edge(human_move): # human moved on an edge
+            if human_move in self.edges: # human moved on an edge
                 if human_move in self.adjacent_cells(computer_move): # if the human played right next to the computer
                     next_move = [1,1] # take the center
                     return next_move
@@ -215,7 +207,7 @@ class TicTacToe(object):
                 return next_move
 
         else: # computer moved in the center
-            if self.is_corner(human_move):
+            if human_move in self.corners:
                 # next move is opposite corner of human move
                 next_move_row = (human_move[0] + 2) % 4 # go from row 0 to 2, or 2 to 0
                 next_move_column = (human_move[1] + 2) % 4 # go from column 0 to 2, or 2 to 0
@@ -239,7 +231,7 @@ class TicTacToe(object):
             if self.blocking_opportunity():
                 return self.blocking_opportunity()
             else:
-                for corner in self.corners(): # 3rd move would necessarily be a corner
+                for corner in self.corners: # 3rd move would necessarily be a corner
                     if (self.is_available(corner) and # check if this corner is available
                         all(self.game_state[cell[0], cell[1]] != self.human_marker for cell in self.adjacent_cells(corner)) ): # all adjacent cells of this corner have not been marked by a human
                         choices.append(corner)
@@ -249,30 +241,89 @@ class TicTacToe(object):
             return self.blocking_opportunity()
         else: # computer is on 2 corners, and has no blocking or winning opportunities
             available_corners = 0
-            for corner in self.corners():
+            for corner in self.corners:
                 if self.is_available(corner):
                     available_corners +=1
             if available_corners == 2: # two corners open
                 choices.append([1,1])
-                for corner in self.corners():
+                for corner in self.corners:
                     # only one corner will pass this test
                     if (self.is_available(corner) and # check if this corner is available.
                         all(self.game_state[cell[0], cell[1]] != self.human_marker for cell in self.adjacent_cells(corner)) ): # all adjacent cells of this corner have not been marked by a human
                         choices.append(corner)
             elif available_corners == 1: # one corner open
-                for corner in self.corners():
+                for corner in self.corners:
                     if self.is_available(corner): # only one corner is available
                         choices.append(corner)
+            else:
+                raise error('missed something!')
             next_move = SystemRandom().choice(choices) # take the only free corner not touching the opponent
             return next_move
+
+    def second_move(self):
+        choices = []
+        human_move = where(self.game_state == self.human_marker)
+        human_move = [human_move[0][0], human_move[1][0]]
+        if human_move == self.center:
+            choices = self.corners
+        elif human_move in self.corners:
+            choices.append(self.center)
+        else: # human played on edge
+            choices.append(self.center)
+        next_move = SystemRandom().choice(choices)
+        return next_move
+
+    def fourth_move(self):
+        choices = []
+
+        if self.blocking_opportunity():
+            return self.blocking_opportunity()
+
+        elif (((self.game_state[0,0] and self.game_state[2,2]) or (self.game_state[0,2] and self.game_state[2,0])) == self.human_marker) and (self.game_state[1,1] == self.computer_marker): # computer on center, both human_markers on opposite corners from each other
+            choices = self.edges
+
+        elif self.game_state[1,1] == self.computer_marker: # computer in the center
+            human_marker_coordinates = transpose(where(self.game_state == self.human_marker))
+            formated_correctly = []
+            for x in human_marker_coordinates:
+                formated_correctly.append([x[0], x[1]])
+            human_marker_coordinates = formated_correctly
+            if all(cell in self.edges for cell in human_marker_coordinates ): # all human markers are on edges
+                for corner in self.corners:
+                    if (self.is_available(corner) and # check if this corner is available.
+                        all(self.game_state[cell[0], cell[1]] == self.human_marker for cell in self.adjacent_edges(corner)) ): # check if all adjacent edges of corner are human_markers
+                        choices.append(corner) # pick corner adjacent to human_marker
+            elif any(cell in self.edges for cell in human_marker_coordinates ): # one human marker is on an edge, one human marker is on a corner
+                # pick corner adjacent to human edge
+                for corner in self.corners:
+                    if (self.is_available(corner) and # check if this corner is available.
+                        any(self.game_state[cell[0], cell[1]] == self.human_marker for cell in self.adjacent_edges(corner)) ): # check if corner is adjacent to an edge human_marker
+                        choices.append(corner) # pick corner adjacent to human_marker
+
+        elif self.game_state[1,1] == self.human_marker: # human in the center
+            for corner in self.corners:
+                if self.is_available(corner): # simply pick a free corner
+                    choices.append(corner)
+
+        else: # the move doesn't matter, just play this one randomly
+            raise error('missed something!')
+
+        if not choices: # no special cases listed above, this move can go anywhere
+            return self.random_move()
+
+        next_move = SystemRandom().choice(choices)
+        return next_move
 
     def late_move(self):
         choices = []
         if self.winning_opportunity(): # first check for a winning opportunity, and just take it if it exists
+            print 'win opp'
             return self.winning_opportunity()
         elif self.blocking_opportunity(): # block if you can't win
+            print 'block opp', self.blocking_opportunity()
             return self.blocking_opportunity()
         else: # the move doesn't matter, just play this one randomly
+            print 'random'
             return self.random_move()
 
     def random_move(self):
@@ -360,49 +411,28 @@ class TicTacToe(object):
         else:
             return False
 
-    def adjacent_cells(self, cell):
+    def adjacent_cells(self, corner):
         '''
         Return a list of coordinates for adjacent cells of the form [ [x0,y0], [x1,y1], ... ].
-        Currently only works if input is a corner space.
+        Input must be a corner space.
         '''
+        assert corner in self.corners
         choices = []
 
-        if self.is_corner(cell):
-            choices.append([cell[0], 1 ])
-            choices.append([1, cell[1] ])
+        if corner in self.corners:
+            choices.append([corner[0], 1 ])
+            choices.append([1, corner[1] ])
             choices.append([1, 1 ])
             
-        elif self.is_edge(cell): ##NOTE: not used right now, haven't checked for accuracy #TODO: check (fix), or remove if not needed
-            print "in adjancent_cell - is edge. not handled!"
-            choices.append([ cell[0], 1 ])
-            choices.append([ 1, cell[1] ])
-            choices.append([ 1, 1 ])
-
         return choices
 
-    def is_corner(self, cell):
+    def adjacent_edges(self, corner):
         '''
-        Return whether the input coordinates are a corner space
+        Return a list of coordinates for adjacent edges of the form [ [x0,y0], [x1,y1], ... ].
+        Input must be a corner space.
         '''
-        if cell in self.corners():
-            return True
-        else:
-            return False
-
-    def corners(self):
-        return [[0,0], [0,2], [2,0], [2,2]]
-
-    def is_edge(self, cell):
-        '''
-        Return whether the input coordinates are an edge space
-        '''
-        if cell in self.edges():
-            return True
-        else:
-            return False
-
-    def edges(self):
-        return [[0,1], [1,0], [1,2], [2,1]]
+        assert corner in self.corners
+        return [item for item in self.adjacent_cells(corner) if item not in [[1,1]]]        
 
     def is_available(self, cell):
         '''

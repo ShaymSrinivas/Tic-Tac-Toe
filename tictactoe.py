@@ -22,8 +22,8 @@ class TicTacToe(object):
         # self.game_state = array( [[0,-1,1],[-1,-1,1],[1,1,-1]] )
 
         ##NOTE: Not sanitizing user input right now. Will likely do away with the cli when gui implemented.
-        # self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
-        self.player_choice = SystemRandom().choice(['x','o'])
+        self.player_choice = raw_input("Do you want to be Xs or Os? (x/o)")
+        # self.player_choice = SystemRandom().choice(['x','o'])
         # X equals 1, O equals -1
         if self.player_choice == 'x':
             self.human_marker = 1
@@ -33,8 +33,8 @@ class TicTacToe(object):
             print 'human is O'
         self.computer_marker = -self.human_marker
 
-        # initial_move_choice = raw_input("Do you want to go first? (y/n)")
-        initial_move_choice = SystemRandom().choice(['n'])
+        initial_move_choice = raw_input("Do you want to go first? (y/n)")
+        # initial_move_choice = SystemRandom().choice(['n'])
         if initial_move_choice == 'n':
             self.first_player = 'human'
             print 'human goes first'
@@ -85,10 +85,10 @@ class TicTacToe(object):
         '''
         Prompt for human move, place move, check for an end game scenario, call computer_turn if game isn't over.
         '''
-        # move = []
-        # move.extend( raw_input("your turn! Enter a row.") )
-        # move.extend( raw_input("your turn! Enter a column.") )
-        move = self.random_move()
+        move = []
+        move.extend( raw_input("your turn! Enter a row.") )
+        move.extend( raw_input("your turn! Enter a column.") )
+        # move = self.random_move()
         # Place move
         if self.is_available(move):
             self.game_state[move[0],move[1]] = self.human_marker

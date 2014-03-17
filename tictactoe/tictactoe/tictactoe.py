@@ -27,21 +27,21 @@ class TicTacToe(object):
         # X equals 1, O equals -1
         if self.player_choice == 'x':
             self.human_marker = 1
-            print 'human is X'
+            printx('human is X')
         else:
             self.human_marker = -1
-            print 'human is O'
+            printx('human is O')
         self.computer_marker = -self.human_marker
 
         initial_move_choice = raw_input("Do you want to go first? (y/n)")
         # initial_move_choice = SystemRandom().choice(['n'])
         if initial_move_choice == 'n':
             self.first_player = 'human'
-            print 'human goes first'
+            printx('human goes first')
             self.human_turn()
         else:
             self.first_player = 'computer'
-            print 'computer goes first'
+            printx('computer goes first')
             self.computer_turn()
 
     def check_for_win(self, marker):
@@ -92,20 +92,20 @@ class TicTacToe(object):
         # Place move
         if self.is_available(move):
             self.game_state[move[0],move[1]] = self.human_marker
-            print self.game_state
+            printx(self.game_state)
         else:
-            print "That spots already taken! Please pick another spot."
+            printx( "That spots already taken! Please pick another spot.")
             self.human_turn()
         # check for win
         win_state = self.check_for_win(self.human_marker)
         if win_state == 'win':
             self.winner = 'human'
-            print 'game over - you won!'
+            printx('game over - you won!')
         elif win_state == 'tie':
             self.winner = 'tie'
-            print "game over - there's a tie"
+            printx("game over - there's a tie")
         elif win_state == 'no winner':
-            print 'should now keep playing'
+            printx('should now keep playing')
             # computer's turn
             self.computer_turn()
 
@@ -116,23 +116,23 @@ class TicTacToe(object):
         ##TODO: Computer move is actually manual (human) right now, will add AI after game flow is finished
         '''
         move = self.computer_ai()
-        print 'move', move
+        printx('move', move)
         if self.is_available(move): #TODO: change to assert later (ai will always pass an available position)
             self.game_state[move[0],move[1]] = self.computer_marker
-            print self.game_state
+            printx(self.game_state)
         else:
-            print "That spots already taken! Please pick another spot."
+            printx("That spots already taken! Please pick another spot.")
             self.computer_turn()
         # check for win
         win_state = self.check_for_win(self.computer_marker)
         if win_state == 'win':
             self.winner = 'computer'
-            print 'game over - the computer won!'
+            printx('game over - the computer won!')
         elif win_state == 'tie':
             self.winner = 'tie'
-            print "game over - there's a tie"
+            printx("game over - there's a tie")
         elif win_state == 'no winner':
-            print 'should now keep playing'
+            printx('should now keep playing')
             # computer's turn
             self.human_turn()
 
@@ -166,7 +166,7 @@ class TicTacToe(object):
 
         # late moves (finishing the game):
         else:
-            print 'play late move'
+            printx('play late move')
             return self.late_move()
 
     ## Listed in alternating order to better match actual gameplay (computer will either move on odd turns, or even turns)
@@ -317,13 +317,13 @@ class TicTacToe(object):
     def late_move(self):
         choices = []
         if self.winning_opportunity(): # first check for a winning opportunity, and just take it if it exists
-            print 'win opp'
+            printx('win opp')
             return self.winning_opportunity()
         elif self.blocking_opportunity(): # block if you can't win
-            print 'block opp', self.blocking_opportunity()
+            printx('block opp', self.blocking_opportunity())
             return self.blocking_opportunity()
         else: # the move doesn't matter, just play this one randomly
-            print 'random'
+            printx('random')
             return self.random_move()
 
     def random_move(self):
@@ -445,11 +445,18 @@ class TicTacToe(object):
         else: # position taken
             return False
 
-winner = None
-i=0
-while winner != 'human':
-    game = TicTacToe()
-    print game.game_state
-    winner = game.winner
-    print 'winner'+str(i)+'  = ', winner
-    i += 1
+def printx(message):
+    # comment out next line to remove all prints
+    print message
+    return
+
+
+## used during build for testing
+# winner = None
+# i=0
+# while winner != 'human':
+#     game = TicTacToe()
+#     prints(game.game_state)
+#     winner = game.winner
+#     printx('winner'+str(i)+'  = ', winner)
+#     i += 1

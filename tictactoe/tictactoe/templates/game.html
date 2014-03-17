@@ -14,36 +14,84 @@
       {% endif %}
     </div>
   </a>
-  <div id='top-center' style='position: absolute; top: 0px; left: 150px;'>
+  <a href='{{ url_list.1 }}'>
+    <div id='top-center' style='position: absolute; top: 0px; left: 150px; width: 150px; height:150px;'>
     {{ top_center }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='top-right' style='position: absolute; top: 0px; left: 300px;'>
+      {% if moves.c1 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c1 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.2 }}'>
+    <div id='top-right' style='position: absolute; top: 0px; left: 300px; width: 150px; height:150px;'>
     {{ top_right }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='center-left' style='position: absolute; top: 150px; left: 0px;'>
+      {% if moves.c2 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c2 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.3 }}'>
+    <div id='center-left' style='position: absolute; top: 150px; left: 0px; width: 150px; height:150px;'>
     {{ center_left }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='center-center' style='position: absolute; top: 150px; left: 150px;'>
+      {% if moves.c3 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c3 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.4 }}'>
+    <div id='center-center' style='position: absolute; top: 150px; left: 150px; width: 150px; height:150px;'>
     {{ center_center }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='center-right' style='position: absolute; top: 150px; left: 300px;'>
+      {% if moves.c4 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c4 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.5 }}'>
+    <div id='center-right' style='position: absolute; top: 150px; left: 300px; width: 150px; height:150px;'>
     {{ center_right }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='bottom-left' style='position: absolute; top: 300px; left: 0px;'>
+      {% if moves.c5 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c5 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.6 }}'>
+    <div id='bottom-left' style='position: absolute; top: 300px; left: 0px; width: 150px; height:150px;'>
     {{ bottom_left }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='bottom-center' style='position: absolute; top: 300px; left: 150px;'>
+      {% if moves.c6 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c6 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.7 }}'>
+    <div id='bottom-center' style='position: absolute; top: 300px; left: 150px; width: 150px; height:150px;'>
     {{ bottom_center }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
-  <div id='bottom-right' style='position: absolute; top: 300px; left: 300px;'>
+      {% if moves.c7 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c7 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
+  <a href='{{ url_list.8 }}'>
+    <div id='bottom-right' style='position: absolute; top: 300px; left: 300px; width: 150px; height:150px;'>
     {{ bottom_right }}
-    <img src="{% static "images/x.png" %}" alt = "x image"/>  
-  </div>
+      {% if moves.c8 == 1 %}
+      <img src="{% static "images/x.png" %}" alt = "x image"/>  
+      {% elif moves.c8 == -1 %}
+      <img src="{% static "images/o.png" %}" alt = "o image"/>  
+      {% endif %}
+    </div>
+  </a>
 </div>
